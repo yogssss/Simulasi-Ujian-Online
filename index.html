@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulasi Ujian Pilihan Ganda</title>
     <style>
-        /* Variabel Warna Mode Terang */
         /* Variabel Warna Mode Terang (Clean & Sleek) */
         :root {
             --bg-body: #ffffff;
-            --bg-container: rgba(255, 255, 255, 0.7); /* Transparan untuk efek kaca */
-            --bg-grid: rgba(0, 0, 0, 0.04); /* Garis grid tipis */
-            --glow-color: rgba(0, 0, 0, 0); /* Tanpa glow di mode terang */
+            --bg-container: rgba(255, 255, 255, 0.7);
+            --bg-grid: rgba(0, 0, 0, 0.04);
+            --glow-color: rgba(0, 0, 0, 0);
             --text-color: #09090b;
             --text-muted: #71717a;
             --border-color: rgba(0, 0, 0, 0.1);
@@ -32,10 +31,10 @@
 
         /* Variabel Warna Mode Gelap (21st.dev Aesthetic) */
         .dark-mode {
-            --bg-body: #09090b; /* Zinc 950 - Hitam pekat modern */
-            --bg-container: rgba(9, 9, 11, 0.6); /* Kaca gelap transparan */
-            --bg-grid: rgba(255, 255, 255, 0.05); /* Grid putih pudar */
-            --glow-color: rgba(56, 189, 248, 0.12); /* Pendaran biru langit estetik di atas */
+            --bg-body: #09090b;
+            --bg-container: rgba(9, 9, 11, 0.6);
+            --bg-grid: rgba(255, 255, 255, 0.05);
+            --glow-color: rgba(56, 189, 248, 0.12);
             --text-color: #f4f4f5;
             --text-muted: #a1a1aa;
             --border-color: rgba(255, 255, 255, 0.1);
@@ -62,8 +61,6 @@
             padding: 15px; 
             color: var(--text-color); 
             transition: background-color 0.4s, color 0.4s; 
-            
-            /* MAGIC BACKGROUND a la 21st.dev: Radial Glow + Grid Pattern */
             background-color: var(--bg-body);
             background-image: 
                 radial-gradient(circle at 50% 0%, var(--glow-color), transparent 60%),
@@ -79,14 +76,11 @@
             max-width: 800px; 
             margin: 20px auto; 
             background: var(--bg-container); 
-            
-            /* MAGIC GLASSMORPHISM */
             backdrop-filter: blur(16px); 
             -webkit-backdrop-filter: blur(16px);
-            
             padding: 30px; 
-            border-radius: 16px; /* Dibikin lebih rounded */
-            border: 1px solid var(--border-color); /* Border tipis khas UI modern */
+            border-radius: 16px; 
+            border: 1px solid var(--border-color); 
             box-shadow: var(--box-shadow); 
             position: relative; 
             transition: 0.4s; 
@@ -95,14 +89,14 @@
         h2 { 
             text-align: center; 
             margin-top: 0; 
-            margin-bottom: 25px; 
+            margin-bottom: 5px; 
             font-size: 24px;
             font-weight: 700;
             line-height: 1.4;
-            letter-spacing: -0.02em; /* Teks agak rapet ala desain modern */
+            letter-spacing: -0.02em; 
         }
 
-        .loading { text-align: center; color: var(--text-muted); font-style: italic; padding: 20px; }
+        .author-tag { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
         
         .question-box { 
             margin-bottom: 30px; 
@@ -112,10 +106,9 @@
             background: rgba(0,0,0,0.02);
             transition: 0.3s; 
         }
-        .dark-mode .question-box { background: rgba(0,0,0,0.15); } /* Box dalam lebih gelap dikit */
+        .dark-mode .question-box { background: rgba(0,0,0,0.15); }
 
         .question-text { font-size: 16px; font-weight: 600; margin-bottom: 20px; line-height: 1.6; }
-        
         .question-image { width: 100%; max-width: 400px; height: auto; display: block; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; background-color: var(--bg-container); }
         
         .options { list-style: none; padding: 0; margin: 0; }
@@ -149,47 +142,54 @@
             transition: all 0.2s; 
             margin-top: 25px; 
         }
-        .btn-submit { background: var(--btn-bg); color: var(--bg-body); } /* Invert warna tombol */
+        .btn-submit { background: var(--btn-bg); color: var(--bg-body); }
         .btn-submit:hover { background: var(--btn-hover); transform: translateY(-2px); }
         
         .btn-retake {
-            background-color: #28a745; /* Warna hijau */
-            color: white;              /* Warna teks putih agar kontras */
-            border: none;              /* Menghilangkan garis tepi bawaan */
-            padding: 10px 20px;        /* Jarak dalam tombol */
-            border-radius: 5px;        /* Membuat sudut tombol melengkung */
-            cursor: pointer;           /* Mengubah kursor menjadi jari saat diarahkan */
+            background-color: #28a745; 
+            color: white;              
+            border: none;              
+            padding: 14px 20px;        
+            border-radius: 10px;        
+            cursor: pointer;           
             font-weight: bold;
-            transition: background 0.3s; /* Efek halus saat ditekan */
+            transition: background 0.3s; 
         }
+        .btn-retake:hover { background-color: #218838; }
 
-        /* Efek saat tombol diarahkan oleh mouse (Hover) */
-        .btn-retake:hover {
-            background-color: #218838; /* Warna hijau yang lebih gelap */
-        }
-
-        
         #result { margin-top: 30px; padding: 25px; border-radius: 12px; text-align: center; font-size: 20px; font-weight: bold; display: none; background-color: var(--bg-label); border: 1px solid var(--border-color); color: var(--text-color); }
         
         .feedback-box { margin-top: 20px; padding: 15px 18px; border-radius: 8px; font-size: 14.5px; display: none; font-weight: 500; line-height: 1.6; }
         .feedback-correct { background-color: var(--correct-bg); color: var(--correct-text); border: 1px solid var(--correct-border); }
         .feedback-wrong { background-color: var(--wrong-bg); color: var(--wrong-text); border: 1px solid var(--wrong-border); }
-</style>
 
-
+        /* Style Tambahan untuk Tombol Header */
+        .header-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
+        .btn-mini { width: auto; margin: 0; padding: 6px 16px; font-size: 14px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .btn-theme { background: var(--bg-label); border: 1px solid var(--border-color); color: var(--text-color); }
+        .btn-reset-file { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; display: none; }
+        .btn-reset-file:hover { background: #ef4444; color: white; }
+    </style>
 </head>
 <body class="dark-mode">
 
 <div class="container">
-    <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="margin: 0 0 10px 0; font-size: 24px;">Simulasi Ujian Online</h2>
-        </n>by Gurur
-        <button id="themeToggle" style="background: var(--bg-label); border: 1px solid var(--border-color); border-radius: 20px; font-size: 16px; cursor: pointer; padding: 5px 15px; color: var(--text-color); transition: 0.2s;" onclick="toggleTheme()" title="Ganti Mode">
-            ☀️ Mode Terang
-        </button>
+    <div style="text-align: center;">
+        <h2>Simulasi Ujian Online</h2>
+        <span class="author-tag">by Gurur</span>
+        
+        <div class="header-actions">
+            <button id="themeToggle" class="btn-mini btn-theme" onclick="toggleTheme()">☀️ Mode Terang</button>
+            <button id="changeFileBtn" class="btn-mini btn-reset-file" onclick="clearAllData()">📂 Ganti File Soal</button>
+        </div>
     </div>
     
-    <div id="loadingStatus" class="loading">Memuat bank soal...</div>
+    <!-- Area Upload File JSON -->
+    <div id="uploadSection" style="text-align: center; margin-bottom: 25px; padding: 35px 20px; border: 2px dashed var(--border-color); border-radius: 16px; background: var(--bg-label);">
+        <p style="margin-top: 0; font-size: 16px; font-weight: 600;">Silakan pilih file <code style="color: #38bdf8;">soal.json</code> kamu</p>
+        <input type="file" id="jsonFileInput" accept=".json,application/json" style="margin-bottom: 10px; padding: 10px; background: var(--bg-body); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; width: 100%; max-width: 300px;">
+        <div id="uploadError" style="color: var(--wrong-text); background: var(--wrong-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--wrong-border); display: none; margin-top: 15px; font-size: 14px; text-align: left;"></div>
+    </div>
     
     <form id="quizForm">
         <div id="quizContainer"></div>
@@ -199,7 +199,6 @@
     <div id="result">
         <div id="scoreText"></div>
         <button type="button" class="btn-retake" onclick="resetQuiz()">🔄 Ulangi Ujian (Acak Soal)</button>
-
     </div>
 </div>
 
@@ -208,58 +207,97 @@
     let currentQuizData = []; 
     let userState = { answers: {}, isSubmitted: false };
 
-    // Fungsi Ganti Mode Terang/Gelap
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeToggle');
         body.classList.toggle('dark-mode');
         
         if (body.classList.contains('dark-mode')) {
-            btn.innerHTML = '☀️ Ubah ke 👉🏼 Mode Terang';
+            btn.innerHTML = '☀️ Mode Terang';
         } else {
-            btn.innerHTML = '🌙 Ubah ke 👉🏼 Mode Gelap';
+            btn.innerHTML = '🌙 Mode Gelap';
         }
     }
 
-    // Ambil file JSON saat halaman dibuka
+    // Saat web dibuka, cek apakah ada soal yang tersimpan di memori
     document.addEventListener("DOMContentLoaded", function() {
-        fetch('soal.json')
-            .then(response => {
-                if (!response.ok) throw new Error('Gagal memuat file soal.json');
-                return response.json();
-            })
-            .then(data => {
-                masterQuizData = data;
-                document.getElementById('loadingStatus').style.display = 'none';
-                initQuiz();
-            })
-            .catch(error => {
-                document.getElementById('loadingStatus').innerHTML = `<span style="color:red;">Error: ${error.message}.</span>`;
-            });
+        const savedMaster = localStorage.getItem('masterQuizData');
+        const savedQuiz = localStorage.getItem('quizData');
+        const savedState = localStorage.getItem('userState');
+
+        if (savedMaster && savedQuiz && savedState) {
+            try {
+                masterQuizData = JSON.parse(savedMaster);
+                currentQuizData = JSON.parse(savedQuiz);
+                userState = JSON.parse(savedState);
+                
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('changeFileBtn').style.display = 'inline-block';
+                renderQuiz();
+                if (userState.isSubmitted) showResults();
+            } catch(e) {
+                clearAllData();
+            }
+        } else {
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('changeFileBtn').style.display = 'none';
+        }
     });
 
-    // Cek memori browser (Anti-Refresh)
-    function initQuiz() {
-        const savedQuizData = localStorage.getItem('quizData');
-        const savedUserState = localStorage.getItem('userState');
+    // Membaca file JSON yang di-upload
+    document.getElementById('jsonFileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const errorDiv = document.getElementById('uploadError');
+        errorDiv.style.display = 'none';
 
-        if (savedQuizData && savedUserState) {
-            currentQuizData = JSON.parse(savedQuizData);
-            userState = JSON.parse(savedUserState);
-            renderQuiz();
-            if (userState.isSubmitted) showResults();
-        } else {
-            startFreshQuiz();
+        if (!file) return;
+
+        if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+            showError("Format salah! Harap masukkan file berakhiran .json");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("Isi JSON tidak valid. Harus berupa Array [ {soal1}, {soal2} ]");
+                }
+                
+                masterQuizData = data;
+                localStorage.setItem('masterQuizData', JSON.stringify(masterQuizData));
+                
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('changeFileBtn').style.display = 'inline-block';
+                
+                startFreshQuiz();
+            } catch (error) {
+                showError("Gagal membaca JSON: " + error.message);
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    function showError(msg) {
+        const errorDiv = document.getElementById('uploadError');
+        errorDiv.innerHTML = "❌ " + msg;
+        errorDiv.style.display = 'block';
+    }
+
+    // Menghapus memori agar bisa upload JSON baru
+    function clearAllData() {
+        if(confirm("Ganti file soal? Progres ujianmu yang sekarang akan dihapus.")) {
+            localStorage.clear();
+            location.reload();
         }
     }
 
-    // Simpan progres jawaban ke browser
     function saveState() {
         localStorage.setItem('quizData', JSON.stringify(currentQuizData));
         localStorage.setItem('userState', JSON.stringify(userState));
     }
 
-    // Event listener setiap kali user memilih jawaban
     document.getElementById('quizForm').addEventListener('change', function(e) {
         if (e.target.type === 'radio' && !userState.isSubmitted) {
             userState.answers[e.target.name] = e.target.value;
@@ -267,7 +305,6 @@
         }
     });
 
-    // Algoritma Pengacak Soal (Fisher-Yates)
     function shuffleArray(array) {
         let shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -277,7 +314,6 @@
         return shuffled;
     }
 
-    // Memulai Ujian Baru
     function startFreshQuiz() {
         currentQuizData = shuffleArray(masterQuizData);
         userState = { answers: {}, isSubmitted: false };
@@ -286,15 +322,11 @@
         renderQuiz();
     }
 
-    // Mengulangi Ujian (Hapus cache & acak ulang)
     function resetQuiz() {
-        localStorage.removeItem('quizData');
-        localStorage.removeItem('userState');
         startFreshQuiz();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Menampilkan elemen soal ke dalam HTML
     function renderQuiz() {
         const container = document.getElementById('quizContainer');
         container.innerHTML = '';
@@ -316,7 +348,6 @@
                 `;
             }
             
-            // Render gambar (Jika path salah atau file hilang, otomatis disembunyikan)
             let imageHtml = '';
             if (item.image && item.image.trim() !== "") {
                 imageHtml = `<img src="${item.image}" class="question-image" alt="Gambar Soal ${index + 1}" onerror="this.style.display='none'">`;
@@ -335,7 +366,6 @@
         document.getElementById('submitBtn').style.display = userState.isSubmitted ? 'none' : 'block';
     }
 
-    // Fungsi saat tombol Kirim ditekan
     function submitQuiz() {
         userState.isSubmitted = true;
         saveState();
@@ -349,7 +379,6 @@
         document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Menampilkan review Benar/Salah dan Skor Akhir
     function showResults() {
         document.getElementById('submitBtn').style.display = 'none';
         let score = 0;
@@ -363,7 +392,6 @@
             
             feedbackDiv.style.display = 'block';
             
-            // Kembalikan warna opsi ke default sebelum di-highlight
             for (let key in item.options) {
                 const lbl = document.getElementById(`label_${item.id}_${key}`);
                 if (lbl) { 
@@ -373,7 +401,6 @@
                 }
             }
 
-            // Jika jawaban user BENAR
             if (userAnswer === correctAnswer) {
                 score++;
                 questionBox.style.borderColor = 'var(--correct-border)';
@@ -386,9 +413,7 @@
                     selectedLbl.style.borderColor = 'var(--correct-border)';
                     selectedLbl.style.color = 'var(--correct-text)';
                 }
-            } 
-            // Jika jawaban user SALAH atau KOSONG
-            else {
+            } else {
                 questionBox.style.borderColor = 'var(--wrong-border)';
                 feedbackDiv.className = "feedback-box feedback-wrong";
                 
@@ -397,11 +422,10 @@
                 
                 feedbackDiv.innerHTML = `
                     ✗ <b>Nomor ${index + 1} SALAH!</b><br>
-                    • Jawaban Anda: Pilihan Kamu ${userText}<br>
-                    • Jawaban Yang Benar: <b style="color: var(--correct-text, #28a745);">${correctText}</b>
+                    • Jawaban Anda: ${userText}<br>
+                    • Jawaban Yang Benar: <b style="color: var(--correct-text);">${correctText}</b>
                 `;
                 
-                // Highlight merah untuk opsi salah yang dipilih user
                 if (userAnswer) {
                     const wrongLbl = document.getElementById(`label_${item.id}_${userAnswer}`);
                     if(wrongLbl) {
@@ -410,7 +434,6 @@
                         wrongLbl.style.color = 'var(--wrong-text)';
                     }
                 }
-                // Highlight hijau untuk opsi yang seharusnya benar
                 const rightLbl = document.getElementById(`label_${item.id}_${correctAnswer}`);
                 if(rightLbl) {
                     rightLbl.style.background = 'var(--correct-bg)';
@@ -420,11 +443,10 @@
             }
         });
         
-        // Kalkulasi nilai akhir
         let finalScore = Math.round((score / totalQuestions) * 100);
         document.getElementById('scoreText').innerHTML = `Ujian Selesai!<br>Skor Akhir: ${finalScore} / 100<br><small>Benar ${score} dari ${totalQuestions} Soal</small>`;
         document.getElementById('result').style.display = 'block';
     }
 </script>
 </body>
-</html> 
+</html>
