@@ -89,14 +89,22 @@
         h2 { 
             text-align: center; 
             margin-top: 0; 
-            margin-bottom: 5px; 
+            margin-bottom: 25px; 
             font-size: 24px;
             font-weight: 700;
             line-height: 1.4;
             letter-spacing: -0.02em; 
         }
 
-        .author-tag { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        /* Animasi Area Drag & Drop */
+        #uploadSection {
+            transition: all 0.25s ease;
+        }
+        #uploadSection.dragover {
+            border-color: #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.1) !important;
+            transform: scale(1.01);
+        }
         
         .question-box { 
             margin-bottom: 30px; 
@@ -109,6 +117,7 @@
         .dark-mode .question-box { background: rgba(0,0,0,0.15); }
 
         .question-text { font-size: 16px; font-weight: 600; margin-bottom: 20px; line-height: 1.6; }
+        
         .question-image { width: 100%; max-width: 400px; height: auto; display: block; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; background-color: var(--bg-container); }
         
         .options { list-style: none; padding: 0; margin: 0; }
@@ -149,7 +158,7 @@
             background-color: #28a745; 
             color: white;              
             border: none;              
-            padding: 14px 20px;        
+            padding: 14px;        
             border-radius: 10px;        
             cursor: pointer;           
             font-weight: bold;
@@ -157,38 +166,40 @@
         }
         .btn-retake:hover { background-color: #218838; }
 
+        .btn-change-file {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+            margin-top: 12px;
+            font-size: 14px;
+            padding: 10px;
+        }
+        .btn-change-file:hover { color: var(--text-color); border-color: var(--text-color); }
+        
         #result { margin-top: 30px; padding: 25px; border-radius: 12px; text-align: center; font-size: 20px; font-weight: bold; display: none; background-color: var(--bg-label); border: 1px solid var(--border-color); color: var(--text-color); }
         
         .feedback-box { margin-top: 20px; padding: 15px 18px; border-radius: 8px; font-size: 14.5px; display: none; font-weight: 500; line-height: 1.6; }
         .feedback-correct { background-color: var(--correct-bg); color: var(--correct-text); border: 1px solid var(--correct-border); }
         .feedback-wrong { background-color: var(--wrong-bg); color: var(--wrong-text); border: 1px solid var(--wrong-border); }
-
-        /* Style Tambahan untuk Tombol Header */
-        .header-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
-        .btn-mini { width: auto; margin: 0; padding: 6px 16px; font-size: 14px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
-        .btn-theme { background: var(--bg-label); border: 1px solid var(--border-color); color: var(--text-color); }
-        .btn-reset-file { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; display: none; }
-        .btn-reset-file:hover { background: #ef4444; color: white; }
     </style>
 </head>
 <body class="dark-mode">
 
 <div class="container">
-    <div style="text-align: center;">
-        <h2>Simulasi Ujian Online</h2>
-        <span class="author-tag">by Gurur</span>
-        
-        <div class="header-actions">
-            <button id="themeToggle" class="btn-mini btn-theme" onclick="toggleTheme()">☀️ Mode Terang</button>
-            <button id="changeFileBtn" class="btn-mini btn-reset-file" onclick="clearAllData()">📂 Ganti File Soal</button>
-        </div>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="margin: 0 0 5px 0; font-size: 24px;">Simulasi Ujian Online</h2>
+        <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 15px;">by Gurur</span>
+        <button id="themeToggle" style="width: auto; display: inline-block; margin: 0; background: var(--bg-label); border: 1px solid var(--border-color); border-radius: 20px; font-size: 14px; cursor: pointer; padding: 6px 16px; color: var(--text-color); transition: 0.2s;" onclick="toggleTheme()">
+            ☀️ Mode Terang
+        </button>
     </div>
     
-    <!-- Area Upload File JSON -->
-    <div id="uploadSection" style="text-align: center; margin-bottom: 25px; padding: 35px 20px; border: 2px dashed var(--border-color); border-radius: 16px; background: var(--bg-label);">
-        <p style="margin-top: 0; font-size: 16px; font-weight: 600;">Silakan pilih file <code style="color: #38bdf8;">soal.json</code> kamu</p>
-        <input type="file" id="jsonFileInput" accept=".json,application/json" style="margin-bottom: 10px; padding: 10px; background: var(--bg-body); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; width: 100%; max-width: 300px;">
-        <div id="uploadError" style="color: var(--wrong-text); background: var(--wrong-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--wrong-border); display: none; margin-top: 15px; font-size: 14px; text-align: left;"></div>
+    <!-- Area Drag & Drop File JSON -->
+    <div id="uploadSection" style="text-align: center; margin-bottom: 25px; padding: 35px 20px; border: 2px dashed var(--border-color); border-radius: 12px; background: var(--bg-label);">
+        <p style="margin: 0 0 6px 0; font-size: 16px; font-weight: 600;">📁 Drag & Drop File Bank Soal Ke Sini</p>
+        <p style="margin: 0 0 18px 0; font-size: 13px; color: var(--text-muted);">atau klik tombol di bawah untuk memilih file .json</p>
+        <input type="file" id="jsonFileInput" accept=".json" style="padding: 8px; background: var(--bg-body); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; width: 100%; max-width: 280px; font-size: 13px;">
+        <div id="uploadError" style="color: var(--wrong-text); background: var(--wrong-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--wrong-border); display: none; margin-top: 15px; font-size: 13.5px;"></div>
     </div>
     
     <form id="quizForm">
@@ -199,6 +210,7 @@
     <div id="result">
         <div id="scoreText"></div>
         <button type="button" class="btn-retake" onclick="resetQuiz()">🔄 Ulangi Ujian (Acak Soal)</button>
+        <button type="button" class="btn-change-file" onclick="gantiFileSoal()">📂 Ganti File Soal (.json) Lain</button>
     </div>
 </div>
 
@@ -219,41 +231,30 @@
         }
     }
 
-    // Saat web dibuka, cek apakah ada soal yang tersimpan di memori
     document.addEventListener("DOMContentLoaded", function() {
         const savedMaster = localStorage.getItem('masterQuizData');
-        const savedQuiz = localStorage.getItem('quizData');
-        const savedState = localStorage.getItem('userState');
-
-        if (savedMaster && savedQuiz && savedState) {
+        if (savedMaster) {
             try {
                 masterQuizData = JSON.parse(savedMaster);
-                currentQuizData = JSON.parse(savedQuiz);
-                userState = JSON.parse(savedState);
-                
                 document.getElementById('uploadSection').style.display = 'none';
-                document.getElementById('changeFileBtn').style.display = 'inline-block';
-                renderQuiz();
-                if (userState.isSubmitted) showResults();
+                initQuiz();
             } catch(e) {
-                clearAllData();
+                localStorage.removeItem('masterQuizData');
             }
-        } else {
-            document.getElementById('uploadSection').style.display = 'block';
-            document.getElementById('changeFileBtn').style.display = 'none';
         }
+        setupDragAndDrop();
     });
 
-    // Membaca file JSON yang di-upload
-    document.getElementById('jsonFileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
+    // Fungsi Utama Pemroses File JSON
+    function processJsonFile(file) {
         const errorDiv = document.getElementById('uploadError');
         errorDiv.style.display = 'none';
 
         if (!file) return;
 
         if (file.type !== "application/json" && !file.name.endsWith(".json")) {
-            showError("Format salah! Harap masukkan file berakhiran .json");
+            errorDiv.innerHTML = "❌ Format file salah! Harap unggah file berakhiran <b>.json</b>";
+            errorDiv.style.display = "block";
             return;
         }
 
@@ -262,34 +263,71 @@
             try {
                 const data = JSON.parse(e.target.result);
                 if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error("Isi JSON tidak valid. Harus berupa Array [ {soal1}, {soal2} ]");
+                    throw new Error("Isi JSON harus berupa Array [ ] dan tidak boleh kosong.");
                 }
                 
                 masterQuizData = data;
-                localStorage.setItem('masterQuizData', JSON.stringify(masterQuizData));
+                localStorage.setItem('masterQuizData', JSON.stringify(data));
                 
                 document.getElementById('uploadSection').style.display = 'none';
-                document.getElementById('changeFileBtn').style.display = 'inline-block';
+                localStorage.removeItem('quizData');
+                localStorage.removeItem('userState');
                 
                 startFreshQuiz();
             } catch (error) {
-                showError("Gagal membaca JSON: " + error.message);
+                errorDiv.innerHTML = "❌ Gagal membaca isi JSON: " + error.message;
+                errorDiv.style.display = "block";
             }
         };
         reader.readAsText(file);
-    });
-
-    function showError(msg) {
-        const errorDiv = document.getElementById('uploadError');
-        errorDiv.innerHTML = "❌ " + msg;
-        errorDiv.style.display = 'block';
     }
 
-    // Menghapus memori agar bisa upload JSON baru
-    function clearAllData() {
-        if(confirm("Ganti file soal? Progres ujianmu yang sekarang akan dihapus.")) {
-            localStorage.clear();
-            location.reload();
+    // Event Input Tombol Biasa
+    document.getElementById('jsonFileInput').addEventListener('change', function(event) {
+        processJsonFile(event.target.files[0]);
+    });
+
+    // Event Drag & Drop
+    function setupDragAndDrop() {
+        const dropZone = document.getElementById('uploadSection');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                processJsonFile(files[0]);
+            }
+        }, false);
+    }
+
+    function initQuiz() {
+        const savedQuizData = localStorage.getItem('quizData');
+        const savedUserState = localStorage.getItem('userState');
+
+        if (savedQuizData && savedUserState) {
+            currentQuizData = JSON.parse(savedQuizData);
+            userState = JSON.parse(savedUserState);
+            renderQuiz();
+            if (userState.isSubmitted) showResults();
+        } else {
+            startFreshQuiz();
         }
     }
 
@@ -323,8 +361,17 @@
     }
 
     function resetQuiz() {
+        localStorage.removeItem('quizData');
+        localStorage.removeItem('userState');
         startFreshQuiz();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function gantiFileSoal() {
+        if(confirm("Ganti soal? Semua progres jawabanmu saat ini akan dihapus.")) {
+            localStorage.clear();
+            location.reload();
+        }
     }
 
     function renderQuiz() {
@@ -423,7 +470,7 @@
                 feedbackDiv.innerHTML = `
                     ✗ <b>Nomor ${index + 1} SALAH!</b><br>
                     • Jawaban Anda: ${userText}<br>
-                    • Jawaban Yang Benar: <b style="color: var(--correct-text);">${correctText}</b>
+                    • Jawaban Benar: <b style="color: var(--correct-text);">${correctText}</b>
                 `;
                 
                 if (userAnswer) {
