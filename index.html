@@ -95,16 +95,6 @@
             line-height: 1.4;
             letter-spacing: -0.02em; 
         }
-
-        /* Animasi Area Drag & Drop */
-        #uploadSection {
-            transition: all 0.25s ease;
-        }
-        #uploadSection.dragover {
-            border-color: #38bdf8 !important;
-            background-color: rgba(56, 189, 248, 0.1) !important;
-            transform: scale(1.01);
-        }
         
         .question-box { 
             margin-bottom: 30px; 
@@ -194,12 +184,16 @@
         </button>
     </div>
     
-    <!-- Area Drag & Drop File JSON -->
-    <div id="uploadSection" style="text-align: center; margin-bottom: 25px; padding: 35px 20px; border: 2px dashed var(--border-color); border-radius: 12px; background: var(--bg-label);">
-        <p style="margin: 0 0 6px 0; font-size: 16px; font-weight: 600;">📁 Drag & Drop File Bank Soal Ke Sini</p>
-        <p style="margin: 0 0 18px 0; font-size: 13px; color: var(--text-muted);">atau klik tombol di bawah untuk memilih file .json</p>
-        <input type="file" id="jsonFileInput" accept=".json" style="padding: 8px; background: var(--bg-body); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; width: 100%; max-width: 280px; font-size: 13px;">
-        <div id="uploadError" style="color: var(--wrong-text); background: var(--wrong-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--wrong-border); display: none; margin-top: 15px; font-size: 13.5px;"></div>
+    <div id="uploadSection" style="position: relative; text-align: center; margin-bottom: 25px; padding: 45px 20px; border: 2px dashed var(--border-color); border-radius: 12px; background: var(--bg-label); overflow: hidden; transition: all 0.3s ease;">
+        
+        <div style="pointer-events: none; position: relative; z-index: 1;">
+            <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: var(--text-color);">📁 Drag & Drop File Ke Sini</p>
+            <p style="margin: 0; font-size: 14px; color: var(--text-muted);">atau klik kotak ini untuk memilih file .json</p>
+        </div>
+
+        <input type="file" id="jsonFileInput" accept=".json" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
+        
+        <div id="uploadError" style="position: relative; z-index: 20; color: var(--wrong-text); background: var(--wrong-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--wrong-border); display: none; margin-top: 20px; font-size: 13.5px; pointer-events: auto;"></div>
     </div>
     
     <form id="quizForm">
@@ -219,6 +213,77 @@
     let currentQuizData = []; 
     let userState = { answers: {}, isSubmitted: false };
 
+    // --- FITUR MENCEGAH BROWSER MEMBUKA FILE JIKA MELESET DARI KOTAK ---
+    window.addEventListener("dragover", function(e) {
+        if (e.target.id !== 'jsonFileInput') e.preventDefault();
+    }, false);
+    window.addEventListener("drop", function(e) {
+        if (e.target.id !== 'jsonFileInput') e.preventDefault();
+    }, false);
+
+    // --- VISUAL EFEK SAAT DRAG & DROP ---
+    const fileInput = document.getElementById('jsonFileInput');
+    const dropZone = document.getElementById('uploadSection');
+
+    fileInput.addEventListener('dragover', () => {
+        dropZone.style.borderColor = '#38bdf8';
+        dropZone.style.backgroundColor = 'rgba(56, 189, 248, 0.1)';
+        dropZone.style.transform = 'scale(1.02)';
+    });
+
+    fileInput.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '';
+        dropZone.style.backgroundColor = ''; 
+        dropZone.style.transform = 'scale(1)';
+    });
+
+    fileInput.addEventListener('drop', () => {
+        dropZone.style.borderColor = '';
+        dropZone.style.backgroundColor = ''; 
+        dropZone.style.transform = 'scale(1)';
+    });
+
+    // --- PEMROSESAN FILE JSON (Berjalan Otomatis Saat Klik Ataupun Drop) ---
+    fileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const errorDiv = document.getElementById('uploadError');
+        errorDiv.style.display = 'none';
+
+        if (!file) return;
+
+        if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+            errorDiv.innerHTML = "❌ Format file salah! Harap unggah file berakhiran <b>.json</b>";
+            errorDiv.style.display = "block";
+            fileInput.value = ''; // Reset
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("Isi JSON harus berupa Array [ ] dan tidak boleh kosong.");
+                }
+                
+                masterQuizData = data;
+                localStorage.setItem('masterQuizData', JSON.stringify(data));
+                
+                document.getElementById('uploadSection').style.display = 'none';
+                localStorage.removeItem('quizData');
+                localStorage.removeItem('userState');
+                
+                startFreshQuiz();
+            } catch (error) {
+                errorDiv.innerHTML = "❌ Gagal membaca isi JSON: " + error.message;
+                errorDiv.style.display = "block";
+                fileInput.value = ''; // Reset
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    // --- FUNGSI TEMA DAN KUIS ---
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeToggle');
@@ -242,80 +307,7 @@
                 localStorage.removeItem('masterQuizData');
             }
         }
-        setupDragAndDrop();
     });
-
-    // Fungsi Utama Pemroses File JSON
-    function processJsonFile(file) {
-        const errorDiv = document.getElementById('uploadError');
-        errorDiv.style.display = 'none';
-
-        if (!file) return;
-
-        if (file.type !== "application/json" && !file.name.endsWith(".json")) {
-            errorDiv.innerHTML = "❌ Format file salah! Harap unggah file berakhiran <b>.json</b>";
-            errorDiv.style.display = "block";
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error("Isi JSON harus berupa Array [ ] dan tidak boleh kosong.");
-                }
-                
-                masterQuizData = data;
-                localStorage.setItem('masterQuizData', JSON.stringify(data));
-                
-                document.getElementById('uploadSection').style.display = 'none';
-                localStorage.removeItem('quizData');
-                localStorage.removeItem('userState');
-                
-                startFreshQuiz();
-            } catch (error) {
-                errorDiv.innerHTML = "❌ Gagal membaca isi JSON: " + error.message;
-                errorDiv.style.display = "block";
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // Event Input Tombol Biasa
-    document.getElementById('jsonFileInput').addEventListener('change', function(event) {
-        processJsonFile(event.target.files[0]);
-    });
-
-    // Event Drag & Drop
-    function setupDragAndDrop() {
-        const dropZone = document.getElementById('uploadSection');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
-        });
-
-        dropZone.addEventListener('drop', function(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                processJsonFile(files[0]);
-            }
-        }, false);
-    }
 
     function initQuiz() {
         const savedQuizData = localStorage.getItem('quizData');
