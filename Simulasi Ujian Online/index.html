@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Ujian Pilihan Ganda</title>
+    <style>
+        /* Variabel Warna Mode Terang */
+        /* Variabel Warna Mode Terang (Clean & Sleek) */
+        :root {
+            --bg-body: #ffffff;
+            --bg-container: rgba(255, 255, 255, 0.7); /* Transparan untuk efek kaca */
+            --bg-grid: rgba(0, 0, 0, 0.04); /* Garis grid tipis */
+            --glow-color: rgba(0, 0, 0, 0); /* Tanpa glow di mode terang */
+            --text-color: #09090b;
+            --text-muted: #71717a;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --bg-label: rgba(0, 0, 0, 0.02);
+            --bg-label-hover: rgba(0, 0, 0, 0.05);
+            --correct-bg: #dcfce7;
+            --correct-text: #166534;
+            --correct-border: #86efac;
+            --wrong-bg: #fee2e2;
+            --wrong-text: #991b1b;
+            --wrong-border: #fca5a5;
+            --btn-bg: #09090b;
+            --btn-hover: #27272a;
+            --btn-retake: #18181b;
+            --btn-retake-hover: #3f3f46;
+            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Variabel Warna Mode Gelap (21st.dev Aesthetic) */
+        .dark-mode {
+            --bg-body: #09090b; /* Zinc 950 - Hitam pekat modern */
+            --bg-container: rgba(9, 9, 11, 0.6); /* Kaca gelap transparan */
+            --bg-grid: rgba(255, 255, 255, 0.05); /* Grid putih pudar */
+            --glow-color: rgba(56, 189, 248, 0.12); /* Pendaran biru langit estetik di atas */
+            --text-color: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-label: rgba(255, 255, 255, 0.03);
+            --bg-label-hover: rgba(255, 255, 255, 0.08);
+            --correct-bg: rgba(22, 101, 52, 0.2);
+            --correct-text: #86efac;
+            --correct-border: rgba(134, 239, 172, 0.3);
+            --wrong-bg: rgba(153, 27, 27, 0.2);
+            --wrong-text: #fca5a5;
+            --wrong-border: rgba(252, 165, 165, 0.3);
+            --btn-bg: #fafafa;
+            --btn-hover: #e4e4e7;
+            --btn-retake: #27272a;
+            --btn-retake-hover: #3f3f46;
+            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            color: var(--text-color); 
+            transition: background-color 0.4s, color 0.4s; 
+            
+            /* MAGIC BACKGROUND a la 21st.dev: Radial Glow + Grid Pattern */
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 50% 0%, var(--glow-color), transparent 60%),
+                linear-gradient(var(--bg-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            background-position: top center, center center, center center;
+            background-attachment: fixed;
+        }
+        
+        .container { 
+            width: 100%; 
+            max-width: 800px; 
+            margin: 20px auto; 
+            background: var(--bg-container); 
+            
+            /* MAGIC GLASSMORPHISM */
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            
+            padding: 30px; 
+            border-radius: 16px; /* Dibikin lebih rounded */
+            border: 1px solid var(--border-color); /* Border tipis khas UI modern */
+            box-shadow: var(--box-shadow); 
+            position: relative; 
+            transition: 0.4s; 
+        }
+        
+        h2 { 
+            text-align: center; 
+            margin-top: 0; 
+            margin-bottom: 25px; 
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+            letter-spacing: -0.02em; /* Teks agak rapet ala desain modern */
+        }
+
+        .loading { text-align: center; color: var(--text-muted); font-style: italic; padding: 20px; }
+        
+        .question-box { 
+            margin-bottom: 30px; 
+            padding: 24px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            background: rgba(0,0,0,0.02);
+            transition: 0.3s; 
+        }
+        .dark-mode .question-box { background: rgba(0,0,0,0.15); } /* Box dalam lebih gelap dikit */
+
+        .question-text { font-size: 16px; font-weight: 600; margin-bottom: 20px; line-height: 1.6; }
+        
+        .question-image { width: 100%; max-width: 400px; height: auto; display: block; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; background-color: var(--bg-container); }
+        
+        .options { list-style: none; padding: 0; margin: 0; }
+        .options li { margin: 12px 0; }
+        
+        label { 
+            display: flex; 
+            align-items: center; 
+            padding: 14px 18px; 
+            background: var(--bg-label); 
+            border: 1px solid var(--border-color); 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        label:hover { background: var(--bg-label-hover); transform: translateY(-1px); }
+        input[type="radio"] { margin-right: 12px; transform: scale(1.2); cursor: pointer; accent-color: #3b82f6; }
+        
+        .disabled-label { cursor: not-allowed; opacity: 0.6; }
+        .disabled-label:hover { background: var(--bg-label); transform: none; }
+        
+        button { 
+            display: block; 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            margin-top: 25px; 
+        }
+        .btn-submit { background: var(--btn-bg); color: var(--bg-body); } /* Invert warna tombol */
+        .btn-submit:hover { background: var(--btn-hover); transform: translateY(-2px); }
+        
+        .btn-retake {
+            background-color: #28a745; /* Warna hijau */
+            color: white;              /* Warna teks putih agar kontras */
+            border: none;              /* Menghilangkan garis tepi bawaan */
+            padding: 10px 20px;        /* Jarak dalam tombol */
+            border-radius: 5px;        /* Membuat sudut tombol melengkung */
+            cursor: pointer;           /* Mengubah kursor menjadi jari saat diarahkan */
+            font-weight: bold;
+            transition: background 0.3s; /* Efek halus saat ditekan */
+        }
+
+        /* Efek saat tombol diarahkan oleh mouse (Hover) */
+        .btn-retake:hover {
+            background-color: #218838; /* Warna hijau yang lebih gelap */
+        }
+
+        
+        #result { margin-top: 30px; padding: 25px; border-radius: 12px; text-align: center; font-size: 20px; font-weight: bold; display: none; background-color: var(--bg-label); border: 1px solid var(--border-color); color: var(--text-color); }
+        
+        .feedback-box { margin-top: 20px; padding: 15px 18px; border-radius: 8px; font-size: 14.5px; display: none; font-weight: 500; line-height: 1.6; }
+        .feedback-correct { background-color: var(--correct-bg); color: var(--correct-text); border: 1px solid var(--correct-border); }
+        .feedback-wrong { background-color: var(--wrong-bg); color: var(--wrong-text); border: 1px solid var(--wrong-border); }
+</style>
+
+
+</head>
+<body class="dark-mode">
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="margin: 0 0 10px 0; font-size: 24px;">Simulasi Ujian Online</h2>
+        </n>by Gurur
+        <button id="themeToggle" style="background: var(--bg-label); border: 1px solid var(--border-color); border-radius: 20px; font-size: 16px; cursor: pointer; padding: 5px 15px; color: var(--text-color); transition: 0.2s;" onclick="toggleTheme()" title="Ganti Mode">
+            ☀️ Mode Terang
+        </button>
+    </div>
+    
+    <div id="loadingStatus" class="loading">Memuat bank soal...</div>
+    
+    <form id="quizForm">
+        <div id="quizContainer"></div>
+        <button type="button" id="submitBtn" class="btn-submit" onclick="submitQuiz()" style="display: none;">Kirim & Lihat Hasil Analisis</button>
+    </form>
+
+    <div id="result">
+        <div id="scoreText"></div>
+        <button type="button" class="btn-retake" onclick="resetQuiz()">🔄 Ulangi Ujian (Acak Soal)</button>
+
+    </div>
+</div>
+
+<script>
+    let masterQuizData = []; 
+    let currentQuizData = []; 
+    let userState = { answers: {}, isSubmitted: false };
+
+    // Fungsi Ganti Mode Terang/Gelap
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeToggle');
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            btn.innerHTML = '☀️ Ubah ke 👉🏼 Mode Terang';
+        } else {
+            btn.innerHTML = '🌙 Ubah ke 👉🏼 Mode Gelap';
+        }
+    }
+
+    // Ambil file JSON saat halaman dibuka
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('soal.json')
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal memuat file soal.json');
+                return response.json();
+            })
+            .then(data => {
+                masterQuizData = data;
+                document.getElementById('loadingStatus').style.display = 'none';
+                initQuiz();
+            })
+            .catch(error => {
+                document.getElementById('loadingStatus').innerHTML = `<span style="color:red;">Error: ${error.message}.</span>`;
+            });
+    });
+
+    // Cek memori browser (Anti-Refresh)
+    function initQuiz() {
+        const savedQuizData = localStorage.getItem('quizData');
+        const savedUserState = localStorage.getItem('userState');
+
+        if (savedQuizData && savedUserState) {
+            currentQuizData = JSON.parse(savedQuizData);
+            userState = JSON.parse(savedUserState);
+            renderQuiz();
+            if (userState.isSubmitted) showResults();
+        } else {
+            startFreshQuiz();
+        }
+    }
+
+    // Simpan progres jawaban ke browser
+    function saveState() {
+        localStorage.setItem('quizData', JSON.stringify(currentQuizData));
+        localStorage.setItem('userState', JSON.stringify(userState));
+    }
+
+    // Event listener setiap kali user memilih jawaban
+    document.getElementById('quizForm').addEventListener('change', function(e) {
+        if (e.target.type === 'radio' && !userState.isSubmitted) {
+            userState.answers[e.target.name] = e.target.value;
+            saveState();
+        }
+    });
+
+    // Algoritma Pengacak Soal (Fisher-Yates)
+    function shuffleArray(array) {
+        let shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    // Memulai Ujian Baru
+    function startFreshQuiz() {
+        currentQuizData = shuffleArray(masterQuizData);
+        userState = { answers: {}, isSubmitted: false };
+        saveState();
+        document.getElementById('result').style.display = 'none';
+        renderQuiz();
+    }
+
+    // Mengulangi Ujian (Hapus cache & acak ulang)
+    function resetQuiz() {
+        localStorage.removeItem('quizData');
+        localStorage.removeItem('userState');
+        startFreshQuiz();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Menampilkan elemen soal ke dalam HTML
+    function renderQuiz() {
+        const container = document.getElementById('quizContainer');
+        container.innerHTML = '';
+        
+        currentQuizData.forEach((item, index) => {
+            let optionsHtml = '';
+            for (let key in item.options) {
+                const isChecked = userState.answers[item.id] === key ? 'checked' : '';
+                const isDisabled = userState.isSubmitted ? 'disabled' : '';
+                const disabledClass = userState.isSubmitted ? 'disabled-label' : '';
+
+                optionsHtml += `
+                    <li>
+                        <label id="label_${item.id}_${key}" class="${disabledClass}">
+                            <input type="radio" name="${item.id}" value="${key}" ${isChecked} ${isDisabled}> 
+                            <b style="margin-right: 8px;">${key}.</b> ${item.options[key]}
+                        </label>
+                    </li>
+                `;
+            }
+            
+            // Render gambar (Jika path salah atau file hilang, otomatis disembunyikan)
+            let imageHtml = '';
+            if (item.image && item.image.trim() !== "") {
+                imageHtml = `<img src="${item.image}" class="question-image" alt="Gambar Soal ${index + 1}" onerror="this.style.display='none'">`;
+            }
+
+            container.innerHTML += `
+                <div class="question-box" id="box_${item.id}">
+                    <div class="question-text">${index + 1}. ${item.question}</div>
+                    ${imageHtml}
+                    <ul class="options">${optionsHtml}</ul>
+                    <div class="feedback-box" id="feedback_${item.id}"></div>
+                </div>
+            `;
+        });
+        
+        document.getElementById('submitBtn').style.display = userState.isSubmitted ? 'none' : 'block';
+    }
+
+    // Fungsi saat tombol Kirim ditekan
+    function submitQuiz() {
+        userState.isSubmitted = true;
+        saveState();
+        showResults();
+        
+        const inputs = document.querySelectorAll('input[type="radio"]');
+        const labels = document.querySelectorAll('label');
+        inputs.forEach(input => input.disabled = true);
+        labels.forEach(label => label.classList.add('disabled-label'));
+        
+        document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Menampilkan review Benar/Salah dan Skor Akhir
+    function showResults() {
+        document.getElementById('submitBtn').style.display = 'none';
+        let score = 0;
+        let totalQuestions = currentQuizData.length;
+        
+        currentQuizData.forEach((item, index) => {
+            const userAnswer = userState.answers[item.id]; 
+            const correctAnswer = item.answer.trim().toUpperCase();
+            const feedbackDiv = document.getElementById(`feedback_${item.id}`);
+            const questionBox = document.getElementById(`box_${item.id}`);
+            
+            feedbackDiv.style.display = 'block';
+            
+            // Kembalikan warna opsi ke default sebelum di-highlight
+            for (let key in item.options) {
+                const lbl = document.getElementById(`label_${item.id}_${key}`);
+                if (lbl) { 
+                    lbl.style.background = 'var(--bg-label)'; 
+                    lbl.style.borderColor = 'var(--border-color)'; 
+                    lbl.style.color = 'var(--text-color)';
+                }
+            }
+
+            // Jika jawaban user BENAR
+            if (userAnswer === correctAnswer) {
+                score++;
+                questionBox.style.borderColor = 'var(--correct-border)';
+                feedbackDiv.className = "feedback-box feedback-correct";
+                feedbackDiv.innerHTML = `✓ <b>Nomor ${index + 1} BENAR!</b> Pilihan Anda: Opsi ${userAnswer}`;
+                
+                const selectedLbl = document.getElementById(`label_${item.id}_${userAnswer}`);
+                if(selectedLbl) {
+                    selectedLbl.style.background = 'var(--correct-bg)';
+                    selectedLbl.style.borderColor = 'var(--correct-border)';
+                    selectedLbl.style.color = 'var(--correct-text)';
+                }
+            } 
+            // Jika jawaban user SALAH atau KOSONG
+            else {
+                questionBox.style.borderColor = 'var(--wrong-border)';
+                feedbackDiv.className = "feedback-box feedback-wrong";
+                
+                let userText = userAnswer ? `${userAnswer} (${item.options[userAnswer]})` : '<i style="color:inherit">Tidak Dijawab</i>';
+                let correctText = `${correctAnswer} (${item.options[correctAnswer]})`;
+                
+                feedbackDiv.innerHTML = `
+                    ✗ <b>Nomor ${index + 1} SALAH!</b><br>
+                    • Jawaban Anda: Pilihan Kamu ${userText}<br>
+                    • Jawaban Yang Benar: <b style="color: var(--correct-text, #28a745);">${correctText}</b>
+                `;
+                
+                // Highlight merah untuk opsi salah yang dipilih user
+                if (userAnswer) {
+                    const wrongLbl = document.getElementById(`label_${item.id}_${userAnswer}`);
+                    if(wrongLbl) {
+                        wrongLbl.style.background = 'var(--wrong-bg)';
+                        wrongLbl.style.borderColor = 'var(--wrong-border)';
+                        wrongLbl.style.color = 'var(--wrong-text)';
+                    }
+                }
+                // Highlight hijau untuk opsi yang seharusnya benar
+                const rightLbl = document.getElementById(`label_${item.id}_${correctAnswer}`);
+                if(rightLbl) {
+                    rightLbl.style.background = 'var(--correct-bg)';
+                    rightLbl.style.borderColor = 'var(--correct-border)';
+                    rightLbl.style.color = 'var(--correct-text)';
+                }
+            }
+        });
+        
+        // Kalkulasi nilai akhir
+        let finalScore = Math.round((score / totalQuestions) * 100);
+        document.getElementById('scoreText').innerHTML = `Ujian Selesai!<br>Skor Akhir: ${finalScore} / 100<br><small>Benar ${score} dari ${totalQuestions} Soal</small>`;
+        document.getElementById('result').style.display = 'block';
+    }
+</script>
+</body>
+</html>
